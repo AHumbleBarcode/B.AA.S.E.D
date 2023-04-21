@@ -72,14 +72,6 @@ while(1):
     # Creating contour to track red color
     contours, hierarchy = cv2.findContours(red_mask,
                                            cv2.RETR_TREE,
-                                           cv2.CHAIN_APPROX_SIMPLE)"""
-    
-    color_mask = cv2.dilate(color_mask, kernel)
-    res_color = cv2.bitwise_and(imageFrame, imageFrame,
-                               mask = color_mask)
-    
-    contours, hierarchy = cv2.findContours(color_mask,
-                                           cv2.RETR_TREE,
                                            cv2.CHAIN_APPROX_SIMPLE)
       
     for pic, contour in enumerate(contours):
@@ -89,12 +81,12 @@ while(1):
             imageFrame = cv2.rectangle(imageFrame, (x, y), 
                                        (x + w, y + h), 
                                        (0, 0, 255), 2)
-            tx=x+math.floor(w/2)
-            ty=y+math.floor((7*h)/20)
+            ty=x+math.floor(w/2)
+            tp=y+math.floor((7*h)/20)
               
-            cv2.putText(imageFrame, "Colour", (x, y),
+            cv2.putText(imageFrame, "Red Colour", (x, y),
                         cv2.FONT_HERSHEY_SIMPLEX, 1.0,
-                        (255, 255, 255))    
+                        (0, 0, 255))    
   
     # Creating contour to track green color
     contours, hierarchy = cv2.findContours(green_mask,
@@ -127,39 +119,57 @@ while(1):
               
             cv2.putText(imageFrame, "Blue Colour", (x, y),
                         cv2.FONT_HERSHEY_SIMPLEX,
-                        1.0, (255, 0, 0))
+                        1.0, (255, 0, 0))"""
 
 
-
+    color_mask = cv2.dilate(color_mask, kernel)
+    res_color = cv2.bitwise_and(imageFrame, imageFrame,
+                               mask = color_mask)
+    
+    contours, hierarchy = cv2.findContours(color_mask,
+                                           cv2.RETR_TREE,
+                                           cv2.CHAIN_APPROX_SIMPLE)
+    
+    for pic, contour in enumerate(contours):
+        area = cv2.contourArea(contour)
+        if(area > 300):
+            x, y, w, h = cv2.boundingRect(contour)
+            imageFrame = cv2.rectangle(imageFrame, (x, y),
+                                       (x + w, y + h),
+                                       (0, 0, 0), 2)
+              
+            cv2.putText(imageFrame, "Colour", (x, y),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        1.0, (255, 255, 255))
 
     
-    sendy=str(math.floor(ty*(-45/573)+110))
-    sendp=str(math.floor(tp*(-45/470)+110))
+    sendx=str(math.floor(tx*(-45/573)+110))
+    sendy=str(math.floor(ty*(-45/470)+110))
      
+    if len(sendx)==2:
+        sendx= '0'+ sendx
+
+    elif len(sendx)==1:
+        sendx='00'+ sendx
+
+    elif len(sendx)<1 or len(sendx)>3:
+        sendx='000'
+
+    else:
+        sendx=sendx
+
+    # ensures that sendX is 3 bytes
     if len(sendy)==2:
-        sendy= '0'+ sendy
-
+        sendy='0'+sendy
     elif len(sendy)==1:
-        sendy='00'+ sendy
-
+        sendy='00'+sendy
     elif len(sendy)<1 or len(sendy)>3:
         sendy='000'
-
     else:
         sendy=sendy
 
-    # ensures that sendX is 3 bytes
-    if len(sendp)==2:
-        sendp='0'+sendp
-    elif len(sendp)==1:
-        sendp='00'+sendp
-    elif len(sendp)<1 or len(sendp)>3:
-        sendp='000'
-    else:
-        sendp=sendp
-
     #pirch and yaw positions ready to be sent
-    send= sendp +sendy
+    send= sendy +sendx
    # print(sendp)
     ser.write(send.encode('utf-8'))
     time.sleep(.001)
