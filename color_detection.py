@@ -8,8 +8,8 @@ import math
 ser= serial.Serial('COM13', 9600)
   
 
-tp = 300
-ty = 300 
+ty = 300
+tx = 300 
 # Capturing video through webcam
 webcam = cv2.VideoCapture(0)
   
@@ -54,7 +54,7 @@ while(1):
     # to detect only that particular color
     kernel = np.ones((5, 5), "uint8")
       
-    # For red color
+    """# For red color
     red_mask = cv2.dilate(red_mask, kernel)
     res_red = cv2.bitwise_and(imageFrame, imageFrame, 
                               mask = red_mask)
@@ -72,6 +72,14 @@ while(1):
     # Creating contour to track red color
     contours, hierarchy = cv2.findContours(red_mask,
                                            cv2.RETR_TREE,
+                                           cv2.CHAIN_APPROX_SIMPLE)"""
+    
+    color_mask = cv2.dilate(color_mask, kernel)
+    res_color = cv2.bitwise_and(imageFrame, imageFrame,
+                               mask = color_mask)
+    
+    contours, hierarchy = cv2.findContours(color_mask,
+                                           cv2.RETR_TREE,
                                            cv2.CHAIN_APPROX_SIMPLE)
       
     for pic, contour in enumerate(contours):
@@ -81,12 +89,12 @@ while(1):
             imageFrame = cv2.rectangle(imageFrame, (x, y), 
                                        (x + w, y + h), 
                                        (0, 0, 255), 2)
-            ty=x+math.floor(w/2)
-            tp=y+math.floor((7*h)/20)
+            tx=x+math.floor(w/2)
+            ty=y+math.floor((7*h)/20)
               
-            cv2.putText(imageFrame, "Red Colour", (x, y),
+            cv2.putText(imageFrame, "Colour", (x, y),
                         cv2.FONT_HERSHEY_SIMPLEX, 1.0,
-                        (0, 0, 255))    
+                        (255, 255, 255))    
   
     # Creating contour to track green color
     contours, hierarchy = cv2.findContours(green_mask,
